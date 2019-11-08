@@ -16,6 +16,12 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
         while True:
             # self.request - TCP socket connected to the client
             self.data = self.request.recv(1024).strip()
+            print(self.data)
+            print(len(self.data))
+            action = self.data[:8].decode()
+            print(action)
+            self.data = self.data[9:]
+            print(self.data)
             decipher = AES.new('RezaTavasoli98'.rjust(32), AES.MODE_ECB).decrypt(self.data)
             print(decipher.strip())
             print("{} sent:".format(self.client_address[0]))
@@ -32,7 +38,7 @@ class Handler_TCPServer(socketserver.BaseRequestHandler):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = "localhost", 8001
 
     # Init the TCP server object, bind it to the localhost on 9999 port
     tcp_server = socketserver.TCPServer((HOST, PORT), Handler_TCPServer)
