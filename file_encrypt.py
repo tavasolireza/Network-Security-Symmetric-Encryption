@@ -8,7 +8,7 @@ def encrypt(key, filename):
     chunksize = 64 * 1024
     outputFile = 'encrypted_' + filename
     filesize = str(os.path.getsize(filename)).zfill(16)
-    print(len(filesize))
+    # print(len(filesize))
     IV = Random.new().read(16)
     encryptor = AES.new(key, AES.MODE_CBC, IV)
     with open(filename, 'rb') as infile:
