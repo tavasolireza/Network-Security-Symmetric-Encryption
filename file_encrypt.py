@@ -5,46 +5,49 @@ from Crypto import Random
 
 
 def encrypt(key, filename):
-    chunksize = 64 * 1024
-    outputFile = 'encrypted_' + filename
-    filesize = str(os.path.getsize(filename)).zfill(16)
-    # print(len(filesize))
+    chunk_size = 64 * 1024
+    output_file = 'encrypted_' + filename
+    file_size = str(os.path.getsize(filename)).zfill(16)
     IV = Random.new().read(16)
     encryptor = AES.new(key, AES.MODE_CBC, IV)
     with open(filename, 'rb') as infile:
-        with open(outputFile, 'wb') as outfile:
-            outfile.write(filesize.encode('utf-8'))
+        with open(output_file, 'wb') as outfile:
+            outfile.write(file_size.encode('utf-8'))
             outfile.write(IV)
             while True:
-                chunk = infile.read(chunksize)
-                print(len(chunk), '   1')
+                chunk = infile.read(chunk_size)
+
                 if len(chunk) == 0:
                     break
                 elif len(chunk) % 16 != 0:
                     chunk += b' ' * (16 - (len(chunk) % 16))
-                    print(len(chunk),'   2')
-                    outfile.write(encryptor.encrypt(chunk))
+                outfile.write(encryptor.encrypt(chunk))
+
+    outfile.close()
+    infile.close()
 
 
 def decrypt(key, filename):
-    chunksize = 64 * 1024
-    outputFile = filename[10:]
+    chunk_size = 64 * 1024
+    output_file = filename[10:]
     with open(filename, 'rb') as infile:
-        filesize = int(infile.read(16))
+        file_size = int(infile.read(16))
         IV = infile.read(16)
         decryptor = AES.new(key, AES.MODE_CBC, IV)
-        with open(outputFile, 'wb') as outfile:
+        with open(output_file, 'wb') as outfile:
             while True:
-                chunk = infile.read(chunksize)
+                chunk = infile.read(chunk_size)
                 if len(chunk) == 0:
                     break
                 outfile.write(decryptor.decrypt(chunk))
-                outfile.truncate(filesize)
+            outfile.truncate(file_size)
+    outfile.close()
+    infile.close()
 
 
 def getKey(password):
-    hasher = SHA256.new(password.encode('utf-8'))
-    return hasher.digest()
+    hashed_passwords = SHA256.new(password.encode('utf-8'))
+    return hashed_passwords.digest()
 
 
 def main():
