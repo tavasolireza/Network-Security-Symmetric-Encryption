@@ -5,13 +5,13 @@ import os
 import datetime as dt
 
 
-def read_physical_key():
+def read_physical_key(f_name):
     pswd = input("Enter physical key's password: ")
-    fien.decrypt(fien.getKey(pswd), 'encrypted_initial_key.txt')
-    initial_file = open('initial_key.txt', 'r')
+    fien.decrypt(fien.getKey(pswd), f'encrypted_{f_name}.txt')
+    initial_file = open(f'{f_name}.txt', 'r')
     key_data = initial_file.read().rjust(32)
     initial_file.close()
-    os.remove('initial_key.txt')
+    # os.remove(f'{f_name}.txt')
     return key_data
 
 
@@ -22,6 +22,7 @@ class ServerHandler(socketserver.BaseRequestHandler):
     enc_data = b''
     new_data = b''
     action = ''
+    username = ''
 
     def handle(self):
 
@@ -41,7 +42,7 @@ class ServerHandler(socketserver.BaseRequestHandler):
 
             finally:
                 if self.action == 'send keys':
-                    decipher = AES.new(read_physical_key().rjust(32), AES.MODE_ECB).decrypt(self.new_data)
+                    decipher = AES.new(read_physical_key(self.username).rjust(32), AES.MODE_ECB).decrypt(self.new_data)
                     self.session_key = decipher.decode().strip()
                 elif self.action == 'send nkey':
                     print('#important#', self.new_data)
@@ -61,13 +62,15 @@ class ServerHandler(socketserver.BaseRequestHandler):
                 elif self.action == 'send phys':
                     decipher = AES.new(fien.getKey(self.session_key), AES.MODE_ECB).decrypt(self.new_data)
                     decipher = decipher.decode().strip()
-                    new_file = open('initial_key.txt', 'w')
+                    new_file = open(f'{self.username}.txt', 'w')
                     new_file.write(decipher)
                     new_file.close()
                     pswd = input("Enter physical key's password: ")
-                    fien.encrypt(fien.getKey(pswd), 'initial_key.txt')
-                    # os.remove('initial_key.txt')
-                    print('new physical key is', decipher)
+                    fien.encrypt(fien.getKey(pswd), f'{self.username}.txt')
+                    # os.remove(f'username/{self.username}.txt')
+                elif self.action == 'send user':
+                    self.username = self.new_data.decode().strip()
+                    print('this is username', self.username)
 
             try:
                 self.request.sendall("ACK from TCP Server".encode())
@@ -76,7 +79,7 @@ class ServerHandler(socketserver.BaseRequestHandler):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 8031
+    HOST, PORT = "localhost", 8034
 
     tcp_server = socketserver.TCPServer((HOST, PORT), ServerHandler)
 

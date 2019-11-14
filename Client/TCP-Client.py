@@ -10,9 +10,11 @@ physical_key = ''
 s_time = datetime.datetime.now()
 f_time = datetime.datetime.now()
 
-host_ip, server_port = "127.0.0.1", 8031
+host_ip, server_port = "127.0.0.1", 8034
 
 tcp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM, )
+
+username = input('Username: ')
 
 
 def create_new_session_key(pswd):
@@ -23,7 +25,7 @@ def create_new_session_key(pswd):
     key_data = initial_file.read().rjust(32)
     cipher = AES.new(key_data, AES.MODE_ECB).encrypt(new_key)
     initial_file.close()
-    os.remove('initial_key.txt')
+    # os.remove('initial_key.txt')
     return cipher, new_key
 
 
@@ -66,10 +68,12 @@ def exchange_new_key(pre_session_key):
 
 
 try:
+
     physical_key = decrypt_physical_key()
     s_time = datetime.datetime.now()
     tcp_client.connect((host_ip, server_port))
     enc_session_key, orig_session_key = '', ''
+    tcp_client.sendall(b'send user' + username.encode())
 
     while True:
         data = ''
