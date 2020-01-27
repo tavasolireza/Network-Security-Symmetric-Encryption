@@ -10,7 +10,7 @@ physical_key = ''
 s_time = datetime.datetime.now()
 f_time = datetime.datetime.now()
 
-host_ip, server_port = "127.0.0.1", 8034
+host_ip, server_port = "127.0.0.1", 9001
 
 tcp_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM, )
 
@@ -88,7 +88,9 @@ try:
                 raise ConnectionError
             if choose_action == 'n':
                 data, orig_session_key = key_exchange(physical_key)
+                print(orig_session_key)
             elif choose_action == 'd':
+                print(orig_session_key)
                 data = data_exchange(orig_session_key)
 
         print(data)

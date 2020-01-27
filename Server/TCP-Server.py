@@ -79,7 +79,7 @@ class ServerHandler(socketserver.BaseRequestHandler):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 8034
+    HOST, PORT = "172.23.188.93", 7000
 
     tcp_server = socketserver.TCPServer((HOST, PORT), ServerHandler)
 
